@@ -1,4 +1,5 @@
-📝 [详细介绍文章：从零构建微信小程序安全扫描器](https://juejin.cn/post/7694595110122045483)
+📝 [第一篇：从零构建微信小程序安全扫描器](https://juejin.cn/post/7694595110122045483)
+📝 [第二篇：深入浅出：如何用 Python 实现一个小程序污点分析引擎](https://juejin.cn/spost/7695613699441213494)
 
 # miniapp-scanner
 [![CI](https://github.com/lathuninh/miniapp-scanner/actions/workflows/ci.yml/badge.svg)](https://github.com/lathuninh/miniapp-scanner/actions/workflows/ci.yml)
