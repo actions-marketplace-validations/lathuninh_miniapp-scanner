@@ -190,6 +190,7 @@ class Scanner:
         for rule, pat, fpat in self._compiled_regex:
             if not fpat.match(rel):
                 continue
+            # 快速预筛：先找关键词
             for m in pat.finditer(text):
                 line_no = text[:m.start()].count("\n") + 1
                 key = (rule["id"], rel, line_no)
@@ -211,6 +212,7 @@ class Scanner:
         if fp.suffix not in self.JS_EXT:
             return len(lines)
 
+        # 复用 ModuleGraph 已解析的 AST（如果有）
         taint_findings = self.taint_analyzer.analyze(text, rel)
         for tf in taint_findings:
             key = (tf["rule_id"], tf["file"], tf["line"])
