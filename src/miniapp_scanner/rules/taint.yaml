@@ -170,6 +170,19 @@ member_sinks:
     message: "Tainted URL into href attribute"
     suggestion: "Whitelist allowed domains"
 
+  - member: "outerHTML"
+    severity: high
+    message: "Tainted data into outerHTML (XSS)"
+    suggestion: "Use replaceWith or sanitize"
+  - member: "src"
+    severity: medium
+    message: "Tainted URL into src attribute"
+    suggestion: "Whitelist allowed sources"
+  - member: "href"
+    severity: medium
+    message: "Tainted URL into href attribute"
+    suggestion: "Whitelist allowed domains"
+
 sanitizers:
   - name: "encodeURIComponent"
   - name: "encodeURI"

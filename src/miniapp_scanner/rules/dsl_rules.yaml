@@ -465,3 +465,74 @@ rules:
         - eq: [left.object.name, "document"]
         - eq: [left.property.name, "domain"]
       code: "document.domain = ..."
+
+  - id: DSL-050
+    info:
+      name: "PostMessage without origin check"
+      severity: high
+      description: "window message listener without origin validation"
+      suggestion: "Always check event.origin against a whitelist before processing"
+    dsl:
+      node: CallExpression
+      conditions:
+        - or:
+            - eq: [callee.object.name, "window"]
+            - eq: [callee.object.name, "self"]
+            - eq: [callee.object.name, "globalThis"]
+        - eq: [callee.property.name, "addEventListener"]
+        - eq: [arguments.0.value, "message"]
+      code: "window.addEventListener('message', ...)"
+
+  - id: DSL-051
+    info:
+      name: "postMessage with wildcard origin"
+      severity: medium
+      description: "postMessage called with '*' target origin"
+      suggestion: "Specify exact target origin instead of '*'"
+    dsl:
+      node: CallExpression
+      conditions:
+        - eq: [callee.property.name, "postMessage"]
+        - eq: [arguments.1.value, "*"]
+      code: "postMessage(data, '*')"
+
+  - id: DSL-052
+    info:
+      name: "JSONP callback injection"
+      severity: medium
+      description: "JSONP callback name from user input"
+      suggestion: "Use CORS instead of JSONP"
+    dsl:
+      node: CallExpression
+      conditions:
+        - or:
+            - eq: [callee.name, "JSONP"]
+            - eq: [callee.property.name, "jsonp"]
+        - arg_tainted: [0]
+      code: "JSONP(taintedCallback)"
+
+  - id: DSL-053
+    info:
+      name: "document.domain relaxed (same-origin bypass)"
+      severity: medium
+      description: "Setting document.domain relaxes same-origin policy"
+      suggestion: "Avoid document.domain; use postMessage for cross-origin"
+    dsl:
+      node: AssignmentExpression
+      conditions:
+        - eq: [left.object.name, "document"]
+        - eq: [left.property.name, "domain"]
+      code: "document.domain = ..."
+
+  - id: DSL-054
+    info:
+      name: "fetch POST without CSRF token header"
+      severity: medium
+      description: "POST request without visible CSRF protection"
+      suggestion: "Include CSRF token in headers or body"
+    dsl:
+      node: CallExpression
+      conditions:
+        - eq: [callee.name, "fetch"]
+        - eq: [arguments.1.object.property.name, "POST"]
+      code: "fetch(url, {method: 'POST'})"
