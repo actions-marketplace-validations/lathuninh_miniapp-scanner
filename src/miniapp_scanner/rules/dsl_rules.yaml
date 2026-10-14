@@ -536,3 +536,48 @@ rules:
         - eq: [callee.name, "fetch"]
         - eq: [arguments.1.object.property.name, "POST"]
       code: "fetch(url, {method: 'POST'})"
+
+  # ==================== 信息泄露规则（补天场景） ====================
+
+  - id: DSL-060
+    info:
+      name: "Sensitive API endpoint exposed"
+      severity: medium
+      description: "Frontend code exposes internal/admin/debug API endpoints"
+      suggestion: "Backend APIs should require authentication; remove debug endpoints"
+    dsl:
+      node: Literal
+      conditions:
+        - match: [value, "(?i)/(api|admin|internal|debug|manage|backend)/"]
+      code: "Sensitive API path in literal"
+
+  - id: DSL-061
+    info:
+      name: "Debug mode enabled in production"
+      severity: high
+      description: "Debug flag enabled in source code"
+      suggestion: "Set debug=false in production builds"
+    dsl:
+      node: Property
+      conditions:
+        - or:
+            - eq: [key.name, "debug"]
+            - eq: [key.name, "isDebug"]
+            - eq: [key.name, "DEBUG"]
+            - eq: [key.name, "devMode"]
+        - eq: [value.value, true]
+      code: "debug: true"
+
+  - id: DSL-062
+    info:
+      name: "Test credentials in source"
+      severity: high
+      description: "Hardcoded test account credentials"
+      suggestion: "Remove test accounts before release; never commit credentials"
+    dsl:
+      node: Property
+      conditions:
+        - or:
+            - match: [key.name, "(?i)(test|demo|admin|dev)[_-]?(user|account|password|passwd|pwd)"]
+        - exists: [value.value]
+      code: "test credentials"

@@ -81,10 +81,16 @@ class RuleDSL:
     def _resolve(self, path, ctx: DSLContext):
         if not isinstance(path, str):
             return path
+        # @xxx 表示字面量
         if path.startswith("@"):
             return path[1:]
-        # 不含点号的字符串，视为字面量（如 "eval"、"foo"），不解析为路径
+        # 特殊路径：value / key / name 等单层路径 —— 尝试从 node 中取
+        # 如果取到 None，就当作字面量返回
         if "." not in path:
+            # 单层路径：先尝试从 node 取
+            if isinstance(ctx.node, dict) and path in ctx.node:
+                return ctx.node[path]
+            # 否则当字面量（比如 "eval"、"debug"）
             return path
         cur: Any = ctx.node
         for p in path.split("."):
