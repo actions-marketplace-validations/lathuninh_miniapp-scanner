@@ -1,0 +1,91 @@
+name: 'MiniApp Security Scan'
+description: 'Scan WeChat mini-program / Web app for security issues'
+author: 'lathuninh'
+
+branding:
+  icon: 'shield'
+  color: 'red'
+
+inputs:
+  target:
+    description: 'Path to scan (directory or .wxapkg file)'
+    required: true
+    default: '.'
+  fail-on-high:
+    description: 'Fail the action if high severity issues are found'
+    required: false
+    default: 'true'
+  report-path:
+    description: 'Path for JSON report output'
+    required: false
+    default: 'security-report.json'
+  min-severity:
+    description: 'Minimum severity to report (high/medium/low)'
+    required: false
+    default: 'low'
+
+outputs:
+  total:
+    description: 'Total number of issues found'
+    value: ${{ steps.scan.outputs.total }}
+  high:
+    description: 'Number of high severity issues'
+    value: ${{ steps.scan.outputs.high }}
+
+runs:
+  using: 'composite'
+  steps:
+    - name: Setup Python
+      uses: actions/setup-python@v6
+      with:
+        python-version: '3.11'
+
+    - name: Install miniapp-scanner
+      shell: bash
+      run: pip install miniapp-scanner
+
+    - name: Run security scan
+      id: scan
+      shell: bash
+      run: |
+        set +e
+        miniapp-scanner "${{ inputs.target }}" --json "${{ inputs.report-path }}"
+        EXIT_CODE=$?
+        set -e
+        
+        python -c "
+        import json, os, sys
+        with open('${{ inputs.report-path }}') as f:
+            d = json.load(f)
+        s = d['summary']
+        print(f'Total: {s[\"total\"]} (high={s[\"high\"]}, medium={s[\"medium\"]}, low={s[\"low\"]}, info={s.get(\"info\",0)})')
+        
+        # 输出到 GitHub Actions outputs
+        with open(os.environ['GITHUB_OUTPUT'], 'a') as f:
+            f.write(f'total={s[\"total\"]}\n')
+            f.write(f'high={s[\"high\"]}\n')
+            f.write(f'medium={s[\"medium\"]}\n')
+            f.write(f'low={s[\"low\"]}\n')
+        "
+
+    - name: Check high severity
+      if: inputs.fail-on-high == 'true'
+      shell: bash
+      run: |
+        python -c "
+        import json, sys
+        with open('${{ inputs.report-path }}') as f:
+            d = json.load(f)
+        s = d['summary']
+        if s['high'] > 0:
+            print(f'❌ Found {s[\"high\"]} high severity issues!')
+            sys.exit(1)
+        print('✅ No high severity issues.')
+        "
+
+    - name: Upload report
+      if: always()
+      uses: actions/upload-artifact@v4
+      with:
+        name: security-report
+        path: ${{ inputs.report-path }}

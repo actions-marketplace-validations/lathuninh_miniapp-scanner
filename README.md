@@ -27,3 +27,28 @@
 
 ```bash
 pip install -e ".[dev]"
+
+## 🔧 集成到你的项目（GitHub Actions）
+
+在你的项目里创建 `.github/workflows/security.yml`：
+
+```yaml
+name: Security Scan
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  scan:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: MiniApp Security Scan
+        uses: lathuninh/miniapp-scanner@main
+        with:
+          target: '.'
+          fail-on-high: 'true'
