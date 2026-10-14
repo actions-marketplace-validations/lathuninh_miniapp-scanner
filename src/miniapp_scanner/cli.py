@@ -57,7 +57,20 @@ def main(argv=None):
                       f"{f['rule_id']} → {triage_map[key]['verdict']}")
 
     print()
-    print(ReportGenerator.to_console(report, triage_map or None))
+    try:
+        output = ReportGenerator.to_console(report, triage_map or None)
+        # 强制用 UTF-8 输出，避免 GBK 编码错误
+        import sys
+        if sys.stdout.encoding and sys.stdout.encoding.lower() != "utf-8":
+            sys.stdout.buffer.write(output.encode("utf-8", errors="replace"))
+            sys.stdout.buffer.write(b"\n")
+        else:
+            print(output)
+    except Exception as e:
+        # 降级：去掉 emoji 再打印
+        output = ReportGenerator.to_console(report, triage_map or None)
+        output = output.encode("ascii", errors="ignore").decode("ascii")
+        print(output)
 
     if args.json:
         Path(args.json).write_text(

@@ -1,19 +1,16 @@
 """统一的 JS 解析入口 + 常量折叠 + 缓存。"""
-import copy
 import esprima
 from typing import Optional, Dict
 
-
-# 解析缓存：源字符串 → AST（只缓存，不被下游修改）
+# 缓存：源字符串 → AST（避免重复解析）
 _PARSE_CACHE = {}
 _MAX_CACHE_SIZE = 200
 
 
 def parse_js(source: str) -> Optional[Dict]:
-    """解析 JS 源码，返回已做常量折叠的 AST dict（带缓存）"""
+    """解析 JS 源码，返回已做常量折叠的 AST（带缓存）"""
     if source in _PARSE_CACHE:
-        cached = _PARSE_CACHE[source]
-        return None if cached is None else copy.deepcopy(cached)
+        return _PARSE_CACHE[source]
 
     try:
         tree = esprima.parseScript(source, {"loc": True, "tolerant": True})
@@ -29,7 +26,7 @@ def parse_js(source: str) -> Optional[Dict]:
 
     if len(_PARSE_CACHE) < _MAX_CACHE_SIZE:
         _PARSE_CACHE[source] = tree
-    return copy.deepcopy(tree)
+    return tree
 
 
 def fold_constants(node):
