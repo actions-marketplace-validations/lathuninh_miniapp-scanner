@@ -52,3 +52,60 @@ jobs:
         with:
           target: '.'
           fail-on-high: 'true'
+
+security-scan:
+  stage: test
+  image: python:3.11
+  script:
+    - pip install miniapp-scanner
+    - miniapp-scanner "src/" --json report.json
+    - python -c "import json; d=json.load(open('report.json')); exit(1 if d['summary']['high'] > 0 else 0)"
+  artifacts:
+    paths:
+      - report.json
+
+stage('Security Scan') {
+    steps {
+        sh 'pip install miniapp-scanner'
+        sh 'miniapp-scanner "src/" --json report.json'
+        script {
+            def report = readJSON file: 'report.json'
+            if (report.summary.high > 0) {
+                error("Found ${report.summary.high} high severity issues")
+            }
+        }
+    }
+}
+
+pip install miniapp-scanner
+miniapp-scanner "src/" --json report.json
+
+# 有高危时退出码为 1，无高危时退出码为 0
+# 可通过 $? 检查，让 CI 自动阻断合并
+
+{
+  "target": "src/",
+  "project_type": "miniapp",
+  "files_scanned": 52,
+  "lines_scanned": 5774,
+  "duration": 9.6,
+  "summary": {
+    "total": 9,
+    "high": 2,
+    "medium": 0,
+    "low": 6,
+    "info": 1
+  },
+  "findings": [
+    {
+      "rule_id": "DSL-003",
+      "rule_name": "Sensitive data stored in local storage",
+      "severity": "high",
+      "file": "pages/authorize/index.js",
+      "line": 115,
+      "code": "wx.setStorageSync('token', ...)",
+      "engine": "dsl",
+      "trace": []
+    }
+  ]
+}
