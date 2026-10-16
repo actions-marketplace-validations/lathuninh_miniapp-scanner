@@ -1,3 +1,7 @@
+[![GitHub Marketplace](https://img.shields.io/badge/Marketplace-MiniApp%20Security%20Scan-blue?logo=github)](https://github.com/marketplace/actions/miniapp-security-scan)
+[![CI](https://github.com/lathuninh/miniapp-scanner/actions/workflows/ci.yml/badge.svg)](https://github.com/lathuninh/miniapp-scanner/actions/workflows/ci.yml)
+[![PyPI](https://img.shields.io/pypi/v/miniapp-scanner)](https://pypi.org/project/miniapp-scanner/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 📝 [第一篇：从零构建微信小程序安全扫描器](https://juejin.cn/post/7694595110122045483)
 📝 [第二篇：深入浅出：如何用 Python 实现一个小程序污点分析引擎](https://juejin.cn/spost/7695613699441213494)
 
