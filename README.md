@@ -26,6 +26,14 @@
 - 用户级配置：`~/.miniapp-scanner.yaml`，一次配置到处用
 - **PR 自动扫描**：GitHub Actions 在 PR 里自动评论扫描结果
 - **25 个单元测试**：覆盖四引擎 + 所有规则
+- ## 支持的框架
+
+- ✅ **微信原生小程序**
+- ✅ **Taro**（React 语法）
+- ✅ **uni-app**（Vue 语法）
+- ✅ **Web 应用**（React / Vue / 原生 JS）
+- ✅ **React 组件**（`export default` 支持）
+- ✅ **Vue 单文件组件**（`<script>` 支持）
 
 ## 安装
 
