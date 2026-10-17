@@ -4,7 +4,7 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 📝 [第一篇：从零构建微信小程序安全扫描器](https://juejin.cn/post/7694595110122045483)
 📝 [第二篇：深入浅出：如何用 Python 实现一个小程序污点分析引擎](https://juejin.cn/spost/7695613699441213494)
-
+📝 [第三篇：从 0 到 GitHub Marketplace：一个安全工具的开源全记录](https://juejin.cn/post/7697162867456114703)
 # miniapp-scanner
 [![CI](https://github.com/lathuninh/miniapp-scanner/actions/workflows/ci.yml/badge.svg)](https://github.com/lathuninh/miniapp-scanner/actions/workflows/ci.yml)
 
