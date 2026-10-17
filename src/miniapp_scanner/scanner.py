@@ -64,6 +64,18 @@ class Scanner:
 
     def _detect_project_type(self, root: Path) -> str:
         """检测项目类型：miniapp / web / node / unknown"""
+        # Taro 项目
+        if (root / "package.json").exists():
+            try:
+                import json
+                pkg = json.loads((root / "package.json").read_text(encoding="utf-8-sig"))
+                deps = {**pkg.get("dependencies", {}), **pkg.get("devDependencies", {})}
+                if "@tarojs/taro" in deps:
+                    return "taro"
+                if "@dcloudio/uni-app" in deps:
+                    return "uni-app"
+            except Exception:
+                pass   # 解析失败就当不是 Taro
         if not root.is_dir():
             return "unknown"
         if (root / "app.json").exists() and (root / "pages").exists():
@@ -98,6 +110,11 @@ class Scanner:
         project_type = self._detect_project_type(tp)
         if project_type == "web":
             print("⚠️  检测到 Web 应用（非微信小程序），部分小程序规则可能不适用")
+
+        elif project_type == "taro":
+            print("ℹ️  检测到 Taro 项目，已启用 Taro API 规则")
+        elif project_type == "uni-app":
+            print("ℹ️  检测到 uni-app 项目，已启用 uni API 规则")
         elif project_type == "node":
             print("⚠️  检测到 Node 项目，可能不是小程序源码")
         elif project_type == "unknown":
