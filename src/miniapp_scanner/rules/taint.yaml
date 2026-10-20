@@ -50,6 +50,14 @@ sources:
   - member: "event.data"
   - member: "postMessage"
 
+  # ==================== Taro 污点源 ====================
+  - member: "Taro.getStorageSync"
+  - member: "Taro.getStorage"
+  - member: "Taro.getCurrentInstance"
+
+  - member: "uni.getStorageSync"
+  - member: "uni.getStorage"
+
 sinks:
   - name: "eval"
     dangerous_arg: [0]
@@ -142,6 +150,50 @@ sinks:
     severity: medium
     message: "Tainted string into setTimeout"
     suggestion: "Use function callback"
+
+  # ==================== Taro API ====================
+  - name: "Taro.request"
+    dangerous_arg: [0, 1]
+    severity: medium
+    message: "Tainted data into Taro.request"
+    suggestion: "Whitelist URL domains, validate params"
+  - name: "Taro.setStorage"
+    dangerous_arg: [1]
+    severity: high
+    message: "Tainted data into Taro.setStorage"
+    suggestion: "Never store sensitive data locally"
+  - name: "Taro.setStorageSync"
+    dangerous_arg: [1]
+    severity: high
+    message: "Tainted data into Taro.setStorageSync"
+    suggestion: "Never store sensitive data locally"
+  - name: "Taro.navigateTo"
+    dangerous_arg: [0]
+    severity: low
+    message: "Tainted URL into Taro.navigateTo"
+    suggestion: "Whitelist target pages"
+  - name: "Taro.redirectTo"
+    dangerous_arg: [0]
+    severity: medium
+    message: "Tainted URL into Taro.redirectTo"
+    suggestion: "Whitelist target pages"
+
+  # ==================== uni-app API ====================
+  - name: "uni.request"
+    dangerous_arg: [0, 1]
+    severity: medium
+    message: "Tainted data into uni.request"
+    suggestion: "Whitelist URL domains"
+  - name: "uni.setStorageSync"
+    dangerous_arg: [1]
+    severity: high
+    message: "Tainted data into uni.setStorageSync"
+    suggestion: "Never store sensitive data locally"
+  - name: "uni.navigateTo"
+    dangerous_arg: [0]
+    severity: low
+    message: "Tainted URL into uni.navigateTo"
+    suggestion: "Whitelist target pages"
 
 member_sinks:
   - member: "innerHTML"

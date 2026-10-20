@@ -56,6 +56,21 @@ class TaintAnalyzer:
             self._eval_expr(node.get("expression", {}), file_path)
         elif t == "FunctionDeclaration":
             self._handle_function_like(node, node.get("id", {}).get("name", ""), file_path)
+        elif t == "ExportDefaultDeclaration":
+            decl = node.get("declaration", {})
+            dt = decl.get("type")
+            if dt == "FunctionDeclaration":
+                self._handle_function_like(decl, decl.get("id", {}).get("name", ""), file_path)
+            elif dt in ("ArrowFunctionExpression", "FunctionExpression"):
+                self._handle_function_like(decl, "__default__", file_path)
+            elif dt == "Identifier":
+                # export default xxx; 跳过
+                pass
+
+        elif t == "ExportNamedDeclaration":
+            decl = node.get("declaration")
+            if decl:
+                self._exec_stmt(decl, file_path)
         elif t == "BlockStatement":
             for s in node.get("body", []):
                 self._exec_stmt(s, file_path)
@@ -150,6 +165,8 @@ class TaintAnalyzer:
                         tr = self._eval_expr(val, file_path)
                         if key and tr:
                             self.aliases.record_prop(name, key, tr)
+            elif it in ("FunctionExpression", "ArrowFunctionExpression"):
+                self._handle_function_like(init, name, file_path)
 
         if init:
             tr = self._eval_expr(init, file_path)
