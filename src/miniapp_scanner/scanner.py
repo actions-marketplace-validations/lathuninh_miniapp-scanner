@@ -179,7 +179,7 @@ class Scanner:
             dirnames[:] = [d for d in dirnames if d not in EXCLUDE_DIRS]
             for fn in filenames:
                 fp = Path(dirpath) / fn
-                if fp.suffix not in self.SCAN_EXT:
+                if fp.suffix not in self.SCAN_EXT:  # SCAN_EXT = {".js", ".json", ".ts"}
                     continue
                 try:
                     if fp.stat().st_size > MAX_FILE_SIZE:      # ★ 跳过超大文件
@@ -199,6 +199,17 @@ class Scanner:
                 text = f.read()
         except Exception:
             return 0
+
+        # ★ Vue SFC 特殊处理：提取 <script> 内容
+        if fp.suffix == ".vue":
+            import re
+            script_match = re.search(r"<script[^>]*>(.*?)</script>", text, re.DOTALL)
+            if script_match:
+                text = script_match.group(1)
+            else:
+                return 0
+
+        text = self.obf.preprocess(text, str(fp))
         text = self.obf.preprocess(text, str(fp))
         rel = str(fp.relative_to(root)) if root.is_dir() else fp.name
         lines = text.splitlines()
