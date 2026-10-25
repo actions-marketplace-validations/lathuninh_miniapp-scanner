@@ -581,3 +581,49 @@ rules:
             - match: [key.name, "(?i)(test|demo|admin|dev)[_-]?(user|account|password|passwd|pwd)"]
         - exists: [value.value]
       code: "test credentials"
+
+  # ==================== 越权 / SDK / CSRF ====================
+
+  - id: DSL-070
+    info:
+      name: "IDOR: User ID in URL path"
+      severity: high
+      description: "User-controlled ID in URL path may cause IDOR"
+      suggestion: "Validate ownership server-side"
+    dsl:
+      node: CallExpression
+      conditions:
+        - or:
+            - eq: [callee.property.name, "request"]
+            - eq: [callee.name, "fetch"]
+        - arg_tainted: [0]
+        - match: [arguments.0.value, "(?i)/(user|order|account|id)/"]
+      code: "request('/api/user/' + taintedId)"
+
+  - id: DSL-071
+    info:
+      name: "Third-party SDK with tainted data"
+      severity: medium
+      description: "Tainted data flows into third-party SDK"
+      suggestion: "Validate before passing to SDK"
+    dsl:
+      node: CallExpression
+      conditions:
+        - match: [callee.object.name, "^(jWeixin|wx\\.cloud|qq|alipay)$"]
+        - arg_tainted: [0]
+      code: "SDK(tainted)"
+
+  - id: DSL-072
+    info:
+      name: "POST request without CSRF token"
+      severity: medium
+      description: "POST request without visible CSRF protection"
+      suggestion: "Include CSRF token in headers or body"
+    dsl:
+      node: CallExpression
+      conditions:
+        - eq: [callee.name, "fetch"]
+        - eq: [arguments.1.object.property.name, "POST"]
+        - not:
+            exists: [arguments.1.object.property.name, "X-CSRF-Token"]
+      code: "fetch(url, {method: 'POST'})"
