@@ -19,8 +19,8 @@ DEFAULT_RULES_DIR = Path(__file__).parent / "rules"
 
 
 class Scanner:
-    SCAN_EXT = {".js", ".json", ".ts"}
-    JS_EXT = {".js", ".ts"}
+    SCAN_EXT = {".js", ".json", ".ts", ".jsx", ".vue"}
+    JS_EXT = {".js", ".ts", ".jsx", ".vue"}
 
     def __init__(self, rules_dir: Optional[Path] = None):
         self.rules_dir = Path(rules_dir) if rules_dir else DEFAULT_RULES_DIR
