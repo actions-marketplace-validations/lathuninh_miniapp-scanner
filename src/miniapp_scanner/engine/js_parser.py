@@ -13,7 +13,7 @@ def parse_js(source: str) -> Optional[Dict]:
         return _PARSE_CACHE[source]
 
     try:
-        tree = esprima.parseScript(source, {"loc": True, "tolerant": True})
+        tree = esprima.parseScript(source, {"loc": True, "tolerant": True, "jsx": True})
         if hasattr(tree, "toDict"):
             tree = tree.toDict()
     except Exception:
